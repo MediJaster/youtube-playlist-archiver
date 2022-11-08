@@ -1,41 +1,76 @@
-# -*- coding: utf-8 -*-
+import os, json
+from dotenv import load_dotenv
 
-# Sample Python code for youtube.playlistItems.list
-# See instructions for running these code samples locally:
-# https://developers.google.com/explorer-help/code-samples#python
+load_dotenv()
+key = os.getenv("API_KEY")
 
-import os
-
-import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
 scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
 
-def main():
-    # Disable OAuthlib's HTTPS verification when running locally.
-    # *DO NOT* leave this option enabled in production.
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-
+def get_playlist_items(playlist_id, page_id=None):
     api_service_name = "youtube"
     api_version = "v3"
-    client_secrets_file = "YOUR_CLIENT_SECRET_FILE.json"
 
-    # Get credentials and create an API client
-    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-        client_secrets_file, scopes)
-    credentials = flow.run_console()
-    youtube = googleapiclient.discovery.build(
-        api_service_name, api_version, credentials=credentials)
+    youtube = googleapiclient.discovery.build(api_service_name, api_version, developerKey=key)
 
     request = youtube.playlistItems().list(
-        part="snippet,contentDetails",
-        maxResults=25,
-        playlistId="PLBCF2DAC6FFB574DE"
+        part = "snippet, contentDetails",
+        maxResults = 30,
+        playlistId = playlist_id,
+        pageToken = page_id,
     )
-    response = request.execute()
 
-    print(response)
+    return request.execute()
+
+with open("saved_playlists.json", "r") as json_file:
+    saved_playlists = json.load(json_file)
+
+def main():
+    playlist_id = "PLCvPrFTfR1h4ZRcYgRSEdo7Rx9fq5GzMI"
+    page_id = ""
+    items = []
+
+
+    while page_id is not None:
+        response = get_playlist_items(playlist_id, page_id)
+
+        for item in response["items"]:
+
+            title = item["snippet"]["title"]
+
+            if title != "Deleted video":
+
+                id = item["contentDetails"]["videoId"]
+                url = f"https://www.youtube.com/watch?v={id}"
+
+                item_dict = {
+                    "id" : id,
+                    "url" : url,
+                    "title" : title
+                }
+
+                items.append(item_dict)
+
+
+        try:
+            page_id = response["nextPageToken"]
+
+        except KeyError:
+            page_id = None
+            break
+    
+    saved_playlists[playlist_id] = {
+        "item_count" : len(items),
+        "items" : []
+    }
+    saved_playlists[playlist_id]["items"] = items
+
+    with open("saved_playlists.json", "w") as json_file:
+        json.dump(saved_playlists, json_file)
+
+
 
 if __name__ == "__main__":
     main()

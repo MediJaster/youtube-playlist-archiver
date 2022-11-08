@@ -1,6 +1,14 @@
 # Custom Ignores
+saved_playlists.json
+
+# Venv Stuff
 Scripts/
 pyvenv.cfg
+bin/
+include/
+lib/
+lib64/
+lib64
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
