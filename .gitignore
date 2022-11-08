@@ -1,5 +1,6 @@
 # Custom Ignores
 saved_playlists.json
+sample_response.json
 
 # Venv Stuff
 Scripts/
