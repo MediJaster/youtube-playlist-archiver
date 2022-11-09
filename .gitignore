@@ -1,6 +1,7 @@
 # Custom Ignores
 saved_playlists.json
 sample_response.json
+video_downloads/
 
 # Venv Stuff
 Scripts/
@@ -10,6 +11,8 @@ include/
 lib/
 lib64/
 lib64
+share/
+etc/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

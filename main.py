@@ -4,6 +4,9 @@ from dotenv import load_dotenv
 load_dotenv()
 key = os.getenv("API_KEY")
 
+directory_files = os.listdir(os.getenv("DOWNLOAD_DIR"))
+print(directory_files)
+
 import googleapiclient.discovery
 import googleapiclient.errors
 
